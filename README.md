@@ -5,5 +5,5 @@ A Fab Lab project made in Oulu.
 Open source excluding the app, so feel free to customize the files. 
 
 Contributors:
-Mitja Kärki
+Mitja Kärki,
 Janne Mustaniemi
