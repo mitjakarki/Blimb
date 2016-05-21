@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-////       BLIMB 1.0
+////       BLIMB 1.0 /w OLED DEBUGGING
 ////         ****
 ////      Kärki Mitja
 ////    Mustaniemi Janne
@@ -24,6 +24,9 @@ Servo s_mount;        // set servo objects
 Servo s_shoulder;
 Servo s_arm;
 Servo s_clamp;
+
+SSD1306_text oled;    // You'll need to add the SSD1306 library to your arduino IDE and uncomment this line if you want to use debug mode.
+                         // Also, see line "#define OLED 0"  about 30 lines below this  
 
 // Serial input data from mobile app
 char com_in[11] = "090090090-";  // The initial value for all servos is 90 degrees and the clamp servo is open.
@@ -51,6 +54,8 @@ char str2[16] = "shoulder:      ";
 char str3[16] = "arm:           ";
 char str4[16] = "clamp:         ";
 
+#define OLED 1      // set to 1 to enable debugging mode.
+
 //Clamp angles
 #define clamp_open_pos 90
 #define clamp_shut_pos 180
@@ -76,12 +81,47 @@ void setup() {
   s_clamp.write(clamp_open_pos);
   delay(500);
 
+#if OLED == 1
+  oled.init();
+  oled.clear();
+
+  // Write OLED prints
+  oled.setCursor(0, 0);
+  oled.write(str1);
+  oled.setCursor(2, 0);
+  oled.write(str2);
+  oled.setCursor(4, 0);
+  oled.write(str3);
+  oled.setCursor(6, 0);
+  oled.write(str4);
+
+#endif
 }
 
 void loop() {
  
+  
   readSerial();
   
+
+#if OLED == 1
+  // Update angles on OLED
+  oled.setCursor(2, 60);
+  oled.write(com_in[0]);
+  oled.write(com_in[1]);
+  oled.write(com_in[2]);
+  oled.setCursor(4, 60);
+  oled.write(com_in[3]);
+  oled.write(com_in[4]);
+  oled.write(com_in[5]);
+  oled.setCursor(0, 60);
+  oled.write(com_in[6]);
+  oled.write(com_in[7]);
+  oled.write(com_in[8]);
+  oled.setCursor(6, 60);
+  oled.write(com_in[9]);
+#endif
+
   ParseSignal();
   
   servosWrite();
@@ -178,11 +218,21 @@ void servosWrite() {
   char armc[3];
   arm_str.toCharArray(armc, 3);
 
+#if OLED == 1
+  oled.setCursor(0, 100);
+  oled.write(mountc);
+
+  oled.setCursor(2, 100);
+  oled.write(shoulderc);
+
+  oled.setCursor(4, 100);
+  oled.write(armc);
+#endif
 }
 
 
 void readSerial(){
-  
+
   uint8_t i = 0;
   while (Serial.available()) {
     char a = Serial.read();
@@ -198,12 +248,11 @@ void readSerial(){
       clamp_shut = false;
       break;
     }
-  
+
     if (a == '+') {
       clamp_shut = true;
       break;
     }
     delay(1);
   }
-
 }
